@@ -8,8 +8,8 @@ public class PlayerController : MonoBehaviour
     public float crouchSpeed = 2.5f;
     public float proneSpeed = 1.5f;
     public float jumpForce = 7.0f;
-    public float sensetivity = 2.0f;
-    private Rigidbody rb;
+    public float sensitivity = 2.0f;
+    private CharacterController characterController;
     public Transform playerCamera; // Assign your camera in the inspector
     public Transform gun;
     public Vector3 gunPosition = new Vector3(0.25f, -0.35f, 0.5f);
@@ -20,10 +20,13 @@ public class PlayerController : MonoBehaviour
     bool isCrouching = false;
     bool isProne = false;
 
+    private Vector3 velocity;
+    private bool isGrounded;
+    public float gravity = -9.81f;
+
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         gun.position = gunPosition;
@@ -32,8 +35,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         // Mouse look
-        float mouseX = Input.GetAxis("Mouse X") * sensetivity;
-        float mouseY = Input.GetAxis("Mouse Y") * sensetivity;
+        float mouseX = Input.GetAxis("Mouse X") * sensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * sensitivity;
 
         transform.Rotate(Vector3.up * mouseX);
 
@@ -59,10 +62,10 @@ public class PlayerController : MonoBehaviour
                 speed = 5.0f;
                 playerCamera.localPosition = new Vector3(0f, 0.7f, 0f);
             }
-            else if (Mathf.Abs(rb.linearVelocity.y) < 0.01f)
+            else if (isGrounded)
             {
                 // Standing to jump
-                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+                velocity.y = jumpForce;
             }
         }
 
@@ -109,17 +112,27 @@ public class PlayerController : MonoBehaviour
         {
             gun.localPosition = Vector3.Lerp(gun.localPosition, gunPosition, Time.deltaTime * aimSpeed);
         }
-    }
-
-    void FixedUpdate()
-    {
+        
         // Movement
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
 
-        Vector3 move = (transform.right * moveHorizontal + transform.forward * moveVertical).normalized;
-        Vector3 velocity = move * speed;
-        velocity.y = rb.linearVelocity.y; // Preserve vertical velocity (gravity/jumping)
-        rb.linearVelocity = velocity;
+        Vector3 move = Vector3.zero;
+        if (Mathf.Abs(moveHorizontal) > 0.01f || Mathf.Abs(moveVertical) > 0.01f)
+        {
+            move = (transform.right * moveHorizontal + transform.forward * moveVertical).normalized;
+        }
+
+        isGrounded = characterController.isGrounded;
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f; // Small downward force to keep grounded
+        }
+
+        characterController.Move(move * speed * Time.deltaTime);
+
+        // Gravity
+        velocity.y += gravity * Time.deltaTime;
+        characterController.Move(new Vector3(0, velocity.y, 0) * Time.deltaTime);
     }
 }

@@ -1,4 +1,3 @@
-//using NUnit.Framework;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -9,19 +8,27 @@ public class PlayerController : MonoBehaviour
     public float proneSpeed = 1.5f;
     public float jumpForce = 7.0f;
     public float sensitivity = 2.0f;
+
+    public float airControl = 0.2f; // <--- NEW: air control multiplier
+
     private CharacterController characterController;
-    public Transform playerCamera; // Assign your camera in the inspector
+
+    public Transform playerCamera;
     public Transform gun;
+
     public Vector3 gunPosition = new Vector3(0.25f, -0.35f, 0.5f);
     public Vector3 aimedGunPosition = new Vector3(0.0f, -0.15f, 0.5f);
     public float aimSpeed = 5.0f;
+
     private float xRotation = 0f;
+
     bool isAiming = false;
     bool isCrouching = false;
     bool isProne = false;
 
-    private Vector3 velocity;
+    private Vector3 velocity;       // <--- CHANGED: now stores x,y,z
     private bool isGrounded;
+
     public float gravity = -9.81f;
 
     void Start()
@@ -29,6 +36,7 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
         gun.position = gunPosition;
     }
 
@@ -44,12 +52,29 @@ public class PlayerController : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        // Posture and jump handling
+        // Movement input (NO smoothing)
+        float moveHorizontal = Input.GetAxisRaw("Horizontal"); // <--- FIXED
+        float moveVertical   = Input.GetAxisRaw("Vertical");   // <--- FIXED
+
+        Vector3 move = (transform.right * moveHorizontal + transform.forward * moveVertical).normalized;
+
+        isGrounded = characterController.isGrounded;
+
+        // Reset vertical velocity when grounded
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+
+            // <<< NEW: stop horizontal momentum on ground >>>
+            velocity.x = 0f;
+            velocity.z = 0f;
+        }
+
+        // Jumping with momentum
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (isProne)
             {
-                // Prone to crouch
                 isProne = false;
                 isCrouching = true;
                 speed = crouchSpeed;
@@ -57,31 +82,33 @@ public class PlayerController : MonoBehaviour
             }
             else if (isCrouching)
             {
-                // Crouch to standing
                 isCrouching = false;
                 speed = 5.0f;
                 playerCamera.localPosition = new Vector3(0f, 0.7f, 0f);
             }
             else if (isGrounded)
             {
-                // Standing to jump
+                // <<< NEW: preserve horizontal momentum >>>
+                Vector3 horizontalVel = move * speed;
+
+                velocity.x = horizontalVel.x;
+                velocity.z = horizontalVel.z;
+
                 velocity.y = jumpForce;
             }
         }
 
-        // Posture down cycling with C key
+        // Crouch cycling
         if (Input.GetKeyDown(KeyCode.C))
         {
             if (!isCrouching && !isProne)
             {
-                // Standing to crouch
                 isCrouching = true;
                 speed = crouchSpeed;
                 playerCamera.localPosition = new Vector3(0f, 0.4f, 0f);
             }
             else if (isCrouching && !isProne)
             {
-                // Crouch to prone
                 isCrouching = false;
                 isProne = true;
                 speed = proneSpeed;
@@ -89,7 +116,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Sprint logic (only when standing)
+        // Sprint
         if (Input.GetKey(KeyCode.LeftShift) && !isCrouching && !isProne)
         {
             speed = sprintSpeed;
@@ -104,6 +131,7 @@ public class PlayerController : MonoBehaviour
         {
             isAiming = !isAiming;
         }
+
         if (isAiming)
         {
             gun.localPosition = Vector3.Lerp(gun.localPosition, aimedGunPosition, Time.deltaTime * aimSpeed);
@@ -112,27 +140,24 @@ public class PlayerController : MonoBehaviour
         {
             gun.localPosition = Vector3.Lerp(gun.localPosition, gunPosition, Time.deltaTime * aimSpeed);
         }
-        
-        // Movement
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
 
-        Vector3 move = Vector3.zero;
-        if (Mathf.Abs(moveHorizontal) > 0.01f || Mathf.Abs(moveVertical) > 0.01f)
+        // --- Movement on ground or air ---
+
+        if (isGrounded)
         {
-            move = (transform.right * moveHorizontal + transform.forward * moveVertical).normalized;
+            // full movement
+            characterController.Move(move * speed * Time.deltaTime);
         }
-
-        isGrounded = characterController.isGrounded;
-        if (isGrounded && velocity.y < 0)
+        else
         {
-            velocity.y = -2f; // Small downward force to keep grounded
+            // limited air control
+            characterController.Move(move * speed * airControl * Time.deltaTime);
         }
-
-        characterController.Move(move * speed * Time.deltaTime);
 
         // Gravity
         velocity.y += gravity * Time.deltaTime;
-        characterController.Move(new Vector3(0, velocity.y, 0) * Time.deltaTime);
+
+        // Apply momentum (vertical + horizontal from jump)
+        characterController.Move(velocity * Time.deltaTime);
     }
 }

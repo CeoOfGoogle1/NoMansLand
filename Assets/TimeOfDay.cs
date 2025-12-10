@@ -11,7 +11,7 @@ public class TimeOfDay : MonoBehaviour
     public float sunVariation = 1.5f;
     public Gradient sunColor;
     public Gradient fogColor;
-    public AnimationCurve fogDensity;
+    //public AnimationCurve fogDensity;
     [Range(0f, 1f)]
     private float timeOfDay;
     private float timeScale = 100f;
@@ -53,10 +53,10 @@ public class TimeOfDay : MonoBehaviour
         UpdateTimeScale();
         UpdateTime();
         RotateSun();
-        //SunIntensity();
+        SunIntensity();
         //AdjustSunColor();
 
         RenderSettings.fogColor = fogColor.Evaluate(timeOfDay);
-        RenderSettings.fogDensity = fogDensity.Evaluate(timeOfDay);
+        //RenderSettings.fogDensity = fogDensity.Evaluate(timeOfDay);
     }
 }

@@ -910,6 +910,9 @@ GameObject:
   - component: {fileID: 1756178912}
   - component: {fileID: 1756178911}
   - component: {fileID: 1756178910}
+  - component: {fileID: 1756178916}
+  - component: {fileID: 1756178915}
+  - component: {fileID: 1756178917}
   m_Layer: 0
   m_Name: Nigger
   m_TagString: Untagged
@@ -931,23 +934,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 5
   sprintSpeed: 8
-  crouchSpeed: 2.5
-  proneSpeed: 1.5
   jumpForce: 5
-  sensitivity: 2
   airControl: 0.1
-  playerCamera: {fileID: 330585546}
-  standHeight: 0.8
-  crouchHeight: 0.4
-  proneHeight: 0.1
-  cameraTransitionSpeed: 6
-  gun: {fileID: 147565331}
-  gunPosition: {x: 0.25, y: -0.35, z: 0.5}
-  aimedGunPosition: {x: 0, y: -0.15, z: 0.5}
-  aimSpeed: 5
-  gravity: -9.81
-  slowdownAmount: 0.5
-  slowdownDuration: 0.2
+  slowdownAmount: 0.9
+  slowdownDuration: 0.3
+  airSpeedReduction: 0.6
+  postureController: {fileID: 1756178917}
 --- !u!143 &1756178911
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1042,6 +1034,57 @@ Transform:
   - {fileID: 330585546}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1756178915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756178909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87331ce3844639f4fa710206804454c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gun: {fileID: 147565331}
+  gunPosition: {x: 0.25, y: -0.35, z: 0.5}
+  aimedGunPosition: {x: 0, y: -0.15, z: 0.5}
+  aimSpeed: 5
+--- !u!114 &1756178916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756178909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a39b18938503c1547a1fd4640b9a8c54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 330585546}
+  standHeight: 0.7
+  crouchHeight: 0.4
+  proneHeight: 0.2
+  cameraTransitionSpeed: 6
+  sensitivity: 2
+--- !u!114 &1756178917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756178909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fdc8a620be6b9d499a736f402c88a69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  crouchSpeed: 2.5
+  proneSpeed: 1.5
+  isCrouching: 0
+  isProne: 0
+  cameraController: {fileID: 1756178916}
 --- !u!1 &1820859012
 GameObject:
   m_ObjectHideFlags: 0

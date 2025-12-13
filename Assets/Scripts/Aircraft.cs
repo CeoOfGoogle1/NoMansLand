@@ -9,6 +9,8 @@ public class Aircraft : MonoBehaviour
 {
     [Header("References")] 
     [SerializeField] private Transform rollVisual;
+    [SerializeField] private float rollSpeed = 1f;
+    [SerializeField] private float zRotMultiplier = 1f;
 
     private AircraftBehaviour aircraftBehaviour;
     private AircraftPath aircraftPath;
@@ -17,9 +19,12 @@ public class Aircraft : MonoBehaviour
     private Vector3 targetPoint;
 
     private SplineAnimate splineAnimate;
+    private Vector3 prevPosition;
+    private Vector3 prevVelocity;
     private float currentRoll;
 
     private bool initialized = false;
+    
 
     public void Initialize(AircraftBehaviour ab, Vector3 newSpawnPoint, Vector3 newEndPoint, Vector3 newTargetPoint, float newSpeed)
     {
@@ -54,6 +59,63 @@ public class Aircraft : MonoBehaviour
 
     private void ApplyRoll()
     {
+        float dt = Time.deltaTime;
+        if (dt <= 0f) return;
 
+        // === 1. Скорость ===
+        Vector3 velocity = (transform.position - prevPosition) / dt;
+
+        if (velocity.sqrMagnitude < 0.0001f)
+        {
+            prevPosition = transform.position;
+            return;
+        }
+
+        // === 2. Ускорение ===
+        Vector3 acceleration = (velocity - prevVelocity) / dt;
+
+        // === 3. Forward ===
+        Vector3 forward = velocity.normalized;
+
+        // === 4. Боковое ускорение (убираем forward и гравитацию) ===
+        Vector3 aLat =
+            acceleration
+            - Vector3.Project(acceleration, forward)
+            - Physics.gravity;
+
+        float targetRoll = currentRoll;
+
+        if (aLat.sqrMagnitude > 0.0001f)
+        {
+            Vector3 upAircraft = aLat.normalized;
+            Vector3 upWorld = Vector3.up;
+
+            float rollRad = Mathf.Atan2(
+                Vector3.Dot(Vector3.Cross(upWorld, upAircraft), forward),
+                Vector3.Dot(upWorld, upAircraft)
+            );
+
+            targetRoll = rollRad * Mathf.Rad2Deg;
+        }
+
+        // === 5. Сглаживание ===
+        currentRoll = Mathf.Lerp(
+            currentRoll,
+            targetRoll * zRotMultiplier,
+            rollSpeed * dt
+        );
+
+        // currentRoll *= zRotMultiplier;
+
+        // === 6. Применяем только к визуалу ===
+        rollVisual.localRotation = Quaternion.Euler(
+            rollVisual.localEulerAngles.x,
+            rollVisual.localEulerAngles.y,
+            currentRoll
+        );
+
+        // === 7. Сохраняем состояние ===
+        prevVelocity = velocity;
+        prevPosition = transform.position;
     }
 }

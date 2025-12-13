@@ -79,6 +79,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rollVisual: {fileID: 6055928552449059395}
+  rollSpeed: 2
+  zRotMultiplier: 0.5
 --- !u!114 &8066073681515875630
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,16 +1,48 @@
+using Unity.VisualScripting.FullSerializer.Internal;
 using UnityEngine;
 
 public class AircraftManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public static AircraftManager Instance { get; private set; }
+
+    [Header("Prefabs")]
+    [SerializeField] GameObject aircraftPath;
+    [SerializeField] GameObject f15Prefab;
+    [Header("Positions (TEMPORARY)")]
+    [SerializeField] Transform spawnPosTransform;
+    [SerializeField] Transform endPosTransform;
+    [SerializeField] Transform targetPosTransform;
+
+    void Awake()
     {
-        
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); // включи, если менеджер должен жить между сценами
     }
 
-    // Update is called once per frame
-    void Update()
+    void Start()
     {
-        
+        //TEMP
+        Instantiate(f15Prefab)
+            .GetComponent<Aircraft>()
+            .Initialize(AircraftBehaviour.Flying, spawnPosTransform.position, endPosTransform.position, targetPosTransform.position, 1);
     }
+
+    public GameObject GetAircraftPathPrefab()
+    {
+        return aircraftPath;
+    }
+
+}
+
+public enum AircraftBehaviour
+{
+    Flying,
+    BombDropping,
+    BombDiving
 }

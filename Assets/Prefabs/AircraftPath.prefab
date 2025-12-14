@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 296e6a2c0f1b8ab468ae3a117225b2f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dropHeight: 150
 --- !u!114 &8798479830113438593
 MonoBehaviour:
   m_ObjectHideFlags: 0

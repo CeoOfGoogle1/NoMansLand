@@ -30,7 +30,7 @@ public class AircraftManager : MonoBehaviour
         //TEMP
         Instantiate(f15Prefab)
             .GetComponent<Aircraft>()
-            .Initialize(AircraftBehaviour.Flying, spawnPosTransform.position, endPosTransform.position, targetPosTransform.position, 1);
+            .Initialize(AircraftBehaviour.BombDropping, spawnPosTransform.position, endPosTransform.position, targetPosTransform.position);
     }
 
     public GameObject GetAircraftPathPrefab()

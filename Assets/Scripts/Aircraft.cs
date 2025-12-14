@@ -4,11 +4,14 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.Splines;
+using UnityEngine.VFX;
 
 public class Aircraft : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private GameObject bombPrefab;
+
+    //public VisualEffect fx;
 
     [Header("References")] 
     [SerializeField] private Transform rollVisual;
@@ -59,6 +62,8 @@ public class Aircraft : MonoBehaviour
         splineAnimate.MaxSpeed = aircraftSpeed;
 
         splineAnimate.Play();
+
+        AudioManager.instance.Play("jet", transform.position);
     }
 
     void Update()
@@ -71,6 +76,8 @@ public class Aircraft : MonoBehaviour
         {
             TryDropBomb();
         }
+
+        //fx.SendEvent("OnBomb");
     }
 
     private void TryDropBomb()

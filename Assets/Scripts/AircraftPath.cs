@@ -13,9 +13,11 @@ public class AircraftPath : MonoBehaviour
     private SplineContainer splineContainer;
     private Spline spline;
 
-    public float turnAmount;
+    private float speed;
 
-    public void Initialize(AircraftBehaviour ab, Vector3 newSpawnPoint, Vector3 newEndPoint, Vector3 newTargetPoint)
+    private float dropHeight;
+
+    public void Initialize(AircraftBehaviour ab, Vector3 newSpawnPoint, Vector3 newEndPoint, Vector3 newTargetPoint, float aircraftSpeed, float newDropHeight)
     {
         aircraftBehaviour = ab;
 
@@ -25,12 +27,11 @@ public class AircraftPath : MonoBehaviour
 
         targetPoint = newTargetPoint;
 
-        SetupSpline();
-    }
+        speed = aircraftSpeed;
 
-    void Update()
-    {
-            
+        dropHeight = newDropHeight;
+
+        SetupSpline();
     }
 
     private void SetupSpline()
@@ -46,6 +47,39 @@ public class AircraftPath : MonoBehaviour
             knots[1] = new BezierKnot(targetPoint + new Vector3(0, 50, 0));
             knots[2] = new BezierKnot(endPoint);
 
+            spline.Knots = knots;
+
+            spline.SetTangentMode(TangentMode.AutoSmooth);
+        }
+
+        if (aircraftBehaviour == AircraftBehaviour.BombDropping)
+        {
+            // gather height
+            float heightGatheringDistance = 1500f;
+
+            BezierKnot[] knots = new BezierKnot[5];
+
+            knots[0] = new BezierKnot(spawnPoint);
+
+            float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
+            Vector3 heightGatheredPos = new Vector3(spawnPoint.x + Mathf.Cos(angle) * heightGatheringDistance, dropHeight, spawnPoint.z + Mathf.Sin(angle) * heightGatheringDistance);
+            
+            Vector3 midHeightGatherPos = Vector3.Lerp(spawnPoint, heightGatheredPos, 0.5f);
+            midHeightGatherPos.y /= 1.5f;
+
+            knots[1] = new BezierKnot(midHeightGatherPos);
+
+            knots[2] = new BezierKnot(heightGatheredPos); 
+
+            // go to drop bomb
+
+            knots[3] = new BezierKnot(targetPoint + new Vector3(0, dropHeight, 0));
+
+            // go down
+
+            knots[4] = new BezierKnot(endPoint);
+
+            //finish
             spline.Knots = knots;
 
             spline.SetTangentMode(TangentMode.AutoSmooth);

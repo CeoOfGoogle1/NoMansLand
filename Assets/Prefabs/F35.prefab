@@ -78,9 +78,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 247b003d0df7de141adf71a3ef5c4d66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bombPrefab: {fileID: 8311149246409326135, guid: 4e8102883c7f0fa47b8e321de1475eae, type: 3}
   rollVisual: {fileID: 6055928552449059395}
   rollSpeed: 2
   zRotMultiplier: 0.5
+  aircraftSpeed: 100
+  dropHeight: 120
 --- !u!114 &8066073681515875630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,10 +99,10 @@ MonoBehaviour:
   m_Target: {fileID: 0}
   m_PlayOnAwake: 0
   m_LoopMode: 0
-  m_Method: 0
+  m_Method: 1
   m_Duration: 15
-  m_MaxSpeed: 10
-  m_EasingMode: 0
+  m_MaxSpeed: 100
+  m_EasingMode: 3
   m_AlignmentMode: 1
   m_ObjectForwardAxis: 2
   m_ObjectUpAxis: 1

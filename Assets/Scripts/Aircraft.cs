@@ -7,10 +7,17 @@ using UnityEngine.Splines;
 
 public class Aircraft : MonoBehaviour
 {
+    [Header("Prefabs")]
+    [SerializeField] private GameObject bombPrefab;
+
     [Header("References")] 
     [SerializeField] private Transform rollVisual;
     [SerializeField] private float rollSpeed = 1f;
     [SerializeField] private float zRotMultiplier = 1f;
+
+    [Header("Values")]
+    [SerializeField] private float aircraftSpeed;
+    [SerializeField] float dropHeight = 120;
 
     private AircraftBehaviour aircraftBehaviour;
     private AircraftPath aircraftPath;
@@ -21,15 +28,15 @@ public class Aircraft : MonoBehaviour
     private SplineAnimate splineAnimate;
     private Vector3 prevPosition;
     private Vector3 prevVelocity;
+    private Vector3 currentVelocity;
     private float currentRoll;
-
+    private bool hasBomb = true;
     private bool initialized = false;
     
 
-    public void Initialize(AircraftBehaviour ab, Vector3 newSpawnPoint, Vector3 newEndPoint, Vector3 newTargetPoint, float newSpeed)
+    public void Initialize(AircraftBehaviour ab, Vector3 newSpawnPoint, Vector3 newEndPoint, Vector3 newTargetPoint)
     {
         splineAnimate = GetComponent<SplineAnimate>();
-
 
         aircraftBehaviour = ab;
 
@@ -41,11 +48,15 @@ public class Aircraft : MonoBehaviour
         targetPoint = newTargetPoint;
 
         aircraftPath = Instantiate(AircraftManager.Instance.GetAircraftPathPrefab()).GetComponent<AircraftPath>();
-        aircraftPath.Initialize(ab, newSpawnPoint, newEndPoint, newTargetPoint);
+        aircraftPath.Initialize(ab, newSpawnPoint, newEndPoint, newTargetPoint, aircraftSpeed, dropHeight);
 
         splineAnimate.Container = aircraftPath.GetSplineContainer();
 
         initialized = true;
+
+        splineAnimate.AnimationMethod = SplineAnimate.Method.Speed;
+
+        splineAnimate.MaxSpeed = aircraftSpeed;
 
         splineAnimate.Play();
     }
@@ -55,6 +66,29 @@ public class Aircraft : MonoBehaviour
         if (!initialized) return;
 
         ApplyRoll();
+
+        if(aircraftBehaviour == AircraftBehaviour.BombDropping)
+        {
+            TryDropBomb();
+        }
+    }
+
+    private void TryDropBomb()
+    {
+        Vector3 targetPointAir = targetPoint;
+        targetPointAir.y = 0;
+
+        Vector3 currentPosAir = transform.position;
+        currentPosAir.y = 0;
+
+        if (Mathf.Abs(Ballistics.CalculateBombReleaseDistance(aircraftSpeed, dropHeight) - currentPosAir.magnitude) <= 1 && hasBomb)
+        {
+            hasBomb = false;
+
+            Instantiate(bombPrefab, transform.position, Quaternion.identity).GetComponent<Bomb>().Initialize(currentVelocity);
+        }
+
+        // Debug.Log($"Desired XZ Distance from target: {Ballistics.CalculateBombReleaseDistance(aircraftSpeed, dropHeight)}, distance from target: {Mathf.Abs(targetPoint.magnitude - currentPosAir.magnitude)}");
     }
 
     private void ApplyRoll()
@@ -63,7 +97,8 @@ public class Aircraft : MonoBehaviour
         if (dt <= 0f) return;
 
         // === 1. Скорость ===
-        Vector3 velocity = (transform.position - prevPosition) / dt;
+        currentVelocity = (transform.position - prevPosition) / dt;
+        Vector3 velocity = currentVelocity;
 
         if (velocity.sqrMagnitude < 0.0001f)
         {

@@ -1,25 +1,33 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Collections.Concurrent;
 
 public class AudioManager : MonoBehaviour
 {
+    // -------------------- DATA --------------------
+
     [System.Serializable]
-public class Sound
-{
-    public string id;
+    public class Sound
+    {
+        public string id;
 
-    [Tooltip("One or more clips. One will be chosen at random.")]
-    public AudioClip[] clips;
+        [Tooltip("One or more clips. One will be chosen at random.")]
+        public AudioClip[] clips;
 
-    [Header("Playback")]
-    public bool loop = false;
+        [Header("Range")]
+        public float minDistance = 1f;
+        public float maxDistance = 1000f;
 
-    [Header("Range")]
-    public float minDistance = 1f;
-    public float maxDistance = 1000f;
-}
+        [Header("Physics")]
+        [Range(0f, 1f)] public float volume = 1f;
+        [Range(0f, 1f)] public float spatialBlend = 1f;
+        public float dopplerLevel = 1f;
+
+        [Header("Low Pass")]
+        public float lpfNear = 22000f;
+        public float lpfFar = 1000f;
+    }
 
     public static AudioManager instance;
 
@@ -31,9 +39,11 @@ public class Sound
 
     private readonly Dictionary<string, Sound> _soundDict = new();
     private readonly Queue<AudioSource> _sourcePool = new();
-
-    // Thread-safe main-thread dispatch
     private readonly ConcurrentQueue<Action> _mainThreadQueue = new();
+
+    private AudioListener _listener;
+
+    // -------------------- LIFECYCLE --------------------
 
     private void Awake()
     {
@@ -47,13 +57,16 @@ public class Sound
         DontDestroyOnLoad(gameObject);
 
         foreach (var s in allSounds)
-        {
             if (!string.IsNullOrEmpty(s.id))
                 _soundDict[s.id] = s;
-        }
 
         for (int i = 0; i < initialPoolSize; i++)
             _sourcePool.Enqueue(CreateSource());
+    }
+
+    private void Start()
+    {
+        _listener = FindFirstObjectByType<AudioListener>();
     }
 
     private void Update()
@@ -64,37 +77,136 @@ public class Sound
 
     // -------------------- PUBLIC API --------------------
 
-    public void Play(string id, Vector3 position)
+    public void Play(string id, Transform target)
     {
         if (IsMainThread())
-            PlayInternal(id, position);
+            PlayInternal(id, target, loop: false);
         else
-            _mainThreadQueue.Enqueue(() => PlayInternal(id, position));
+            _mainThreadQueue.Enqueue(() => PlayInternal(id, target, loop: false));
+    }
+
+    public LoopHandle PlayLoop(string id, Transform target)
+    {
+        if (!_soundDict.TryGetValue(id, out var sound)) return default;
+        if (sound.clips == null || sound.clips.Length == 0) return default;
+
+        var src = SpawnSource(sound, target, loop: true);
+        return new LoopHandle { source = src };
     }
 
     // -------------------- INTERNAL --------------------
 
-    private void PlayInternal(string id, Vector3 position)
-{
-    if (!_soundDict.TryGetValue(id, out var sound)) return;
-    if (sound.clips == null || sound.clips.Length == 0) return;
+    private void PlayInternal(string id, Transform target, bool loop)
+    {
+        if (!_soundDict.TryGetValue(id, out var sound)) return;
+        if (sound.clips == null || sound.clips.Length == 0) return;
 
-    var src = GetSource();
+        var src = SpawnSource(sound, target, loop);
 
-    src.clip = sound.clips[UnityEngine.Random.Range(0, sound.clips.Length)];
-    src.loop = sound.loop;
+        if (!loop)
+            StartCoroutine(ReturnWhenFinished(src));
+    }
 
-        src.transform.position = position;
-        src.spatialBlend = 1f; // full 3D
+    private AudioSource SpawnSource(Sound sound, Transform target, bool loop)
+    {
+        var src = GetSource();
+
+        src.clip = sound.clips[UnityEngine.Random.Range(0, sound.clips.Length)];
+        src.loop = loop;
+
         src.minDistance = sound.minDistance;
-        src.maxDistance = sound.maxDistance; // adjust as needed
-        src.rolloffMode = AudioRolloffMode.Logarithmic;
+        src.maxDistance = sound.maxDistance;
+        src.volume = sound.volume;
+        src.spatialBlend = sound.spatialBlend;
+        src.dopplerLevel = sound.dopplerLevel;
+        src.rolloffMode = AudioRolloffMode.Linear;
 
-    src.Play();
+        // Attach updater
+        var attached = src.gameObject.GetComponent<AttachedAudio>();
+        if (!attached) attached = src.gameObject.AddComponent<AttachedAudio>();
+        attached.Init(
+            target, 
+            src, 
+            _listener,
+            sound.lpfNear,
+            sound.lpfFar);
 
-    if (!sound.loop)
-        StartCoroutine(ReturnWhenFinished(src));
-}
+        // Speed of sound delay (one-shots only)
+        if (!loop && _listener)
+        {
+            float dist = Vector3.Distance(_listener.transform.position, target.position);
+            float delay = dist / 343f;
+            src.PlayDelayed(delay);
+        }
+        else
+        {
+            src.Play();
+        }
+
+        return src;
+    }
+
+    // -------------------- LOOP HANDLE --------------------
+
+    public struct LoopHandle
+    {
+        internal AudioSource source;
+        public bool IsValid => source != null;
+
+        public void Stop()
+        {
+            if (!source) return;
+
+            source.Stop();
+            AudioManager.instance.ResetSource(source);
+            AudioManager.instance.ReturnToPool(source);
+            source = null;
+        }
+    }
+
+    // -------------------- POSITION + LPF --------------------
+
+    private class AttachedAudio : MonoBehaviour
+    {
+        private Transform target;
+        private AudioSource src;
+        private AudioListener listener;
+        private AudioLowPassFilter lpf;
+
+        private float lpfNear;
+        private float lpfFar;
+
+        public void Init(
+            Transform t, 
+            AudioSource s, 
+            AudioListener l,
+            float near,
+            float far)
+        {
+            target = t;
+            src = s;
+            listener = l;
+            lpfNear = near;
+            lpfFar = far;
+
+            lpf = GetComponent<AudioLowPassFilter>();
+            if (!lpf) lpf = gameObject.AddComponent<AudioLowPassFilter>();
+        }
+
+        private void LateUpdate()
+        {
+            if (!target || !src || !listener) return;
+
+            transform.position = target.position;
+
+            // Distance-based low-pass (air absorption)
+            float dist = Vector3.Distance(listener.transform.position, target.position);
+            float t = Mathf.Clamp01(dist / src.maxDistance);
+            lpf.cutoffFrequency = Mathf.Lerp(lpfNear, lpfFar, t);
+        }
+    }
+
+    // -------------------- POOLING --------------------
 
     private AudioSource GetSource()
     {
@@ -116,26 +228,26 @@ public class Sound
     {
         yield return new WaitWhile(() => src.isPlaying);
 
+        ResetSource(src);
+        _sourcePool.Enqueue(src);
+    }
+
+    private void ResetSource(AudioSource src)
+    {
+        src.Stop();
         src.clip = null;
+        src.loop = false;
+        src.spatialBlend = 0f;
+        src.dopplerLevel = 0f;
+    }
+
+    internal void ReturnToPool(AudioSource src)
+    {
         _sourcePool.Enqueue(src);
     }
 
     private static bool IsMainThread()
     {
         return System.Threading.Thread.CurrentThread.ManagedThreadId == 1;
-    }
-
-        public void StopAllLoops()
-    {
-        foreach (Transform child in transform)
-        {
-            var src = child.GetComponent<AudioSource>();
-            if (src != null && src.loop && src.isPlaying)
-            {
-                src.Stop();
-                src.clip = null;
-                _sourcePool.Enqueue(src);
-            }
-        }
     }
 }

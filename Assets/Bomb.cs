@@ -1,11 +1,11 @@
 using UnityEngine;
-using UnityEngine.VFX;
 using System.Collections;
 
 public class Bomb : MonoBehaviour
 {
     private Rigidbody rb;
-    public VisualEffect fx;
+    public GameObject explosionPrefab;
+    public float effectDuration = 10f;
 
     public void Initialize(Vector3 initialVelocity)
     {
@@ -20,18 +20,25 @@ public class Bomb : MonoBehaviour
 
     IEnumerator DelayedSound(float delay) {
     yield return new WaitForSeconds(delay);
-    AudioManager.instance.Play("whistle", transform.position);
+    AudioManager.instance.Play("whistle", transform);
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        AudioManager.instance.Play("bomb", transform.position);
+        AudioManager.instance.Play("bomb", transform);
 
-        Debug.Log("Bomb collided with " + collision.gameObject.name);
+        Explode();
+    }
 
+    public void Explode()
+    {
+        // Spawn VFX at bomb position, parented to null (world space)
+        GameObject vfxInstance = Instantiate(explosionPrefab, transform.position, transform.rotation);
+        
+        // Destroy bomb immediately
         Destroy(gameObject);
-
-        fx.SendEvent("OnBomb");
-        fx.Play();
+        
+        // Clean up VFX after it finishes
+        Destroy(vfxInstance, effectDuration);
     }
 }

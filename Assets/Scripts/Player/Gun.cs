@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GunController : MonoBehaviour
+public class Gun : MonoBehaviour
 {
     [Header("Gun")]
     public Transform gun;

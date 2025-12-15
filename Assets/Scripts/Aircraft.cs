@@ -1,17 +1,10 @@
-using System;
-using System.Linq.Expressions;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.Splines;
-using UnityEngine.VFX;
 
 public class Aircraft : MonoBehaviour
 {
     [Header("Prefabs")]
     [SerializeField] private GameObject bombPrefab;
-
-    //public VisualEffect fx;
 
     [Header("References")] 
     [SerializeField] private Transform rollVisual;
@@ -35,7 +28,7 @@ public class Aircraft : MonoBehaviour
     private float currentRoll;
     private bool hasBomb = true;
     private bool initialized = false;
-    
+    private AudioManager.LoopHandle jet;
 
     public void Initialize(AircraftBehaviour ab, Vector3 newSpawnPoint, Vector3 newEndPoint, Vector3 newTargetPoint)
     {
@@ -63,7 +56,7 @@ public class Aircraft : MonoBehaviour
 
         splineAnimate.Play();
 
-        AudioManager.instance.Play("jet", transform.position);
+        jet = AudioManager.instance.PlayLoop("jet", transform);
     }
 
     void Update()
@@ -159,5 +152,10 @@ public class Aircraft : MonoBehaviour
         // === 7. Сохраняем состояние ===
         prevVelocity = velocity;
         prevPosition = transform.position;
+    }
+
+    void FuckingDies()
+    {
+        jet.Stop();
     }
 }

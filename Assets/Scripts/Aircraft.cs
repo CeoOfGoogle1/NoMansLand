@@ -81,14 +81,18 @@ public class Aircraft : MonoBehaviour
         Vector3 currentPosAir = transform.position;
         currentPosAir.y = 0;
 
-        if (Mathf.Abs(Ballistics.CalculateBombReleaseDistance(aircraftSpeed, dropHeight) - currentPosAir.magnitude) <= 1 && hasBomb)
+        float distanceToTarget = Vector3.Distance(currentPosAir, targetPointAir);
+        float releaseDistance = Ballistics.CalculateBombReleaseDistance(aircraftSpeed, dropHeight);
+
+        if (Mathf.Abs(distanceToTarget - releaseDistance) <= 5f && hasBomb)
         {
             hasBomb = false;
-
-            Instantiate(bombPrefab, transform.position, Quaternion.identity).GetComponent<Bomb>().Initialize(currentVelocity);
+            Instantiate(bombPrefab, transform.position, Quaternion.identity)
+                .GetComponent<Bomb>()
+                .Initialize(currentVelocity);
         }
 
-        // Debug.Log($"Desired XZ Distance from target: {Ballistics.CalculateBombReleaseDistance(aircraftSpeed, dropHeight)}, distance from target: {Mathf.Abs(targetPoint.magnitude - currentPosAir.magnitude)}");
+        Debug.Log($"ReleaseDistance: {releaseDistance}, DistanceToTarget: {distanceToTarget}");
     }
 
     private void ApplyRoll()

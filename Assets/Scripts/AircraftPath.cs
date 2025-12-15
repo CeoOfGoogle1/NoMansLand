@@ -54,30 +54,17 @@ public class AircraftPath : MonoBehaviour
 
         if (aircraftBehaviour == AircraftBehaviour.BombDropping)
         {
-            // gather height
-            float heightGatheringDistance = 1500f;
+            BezierKnot[] knots = new BezierKnot[3];
 
-            BezierKnot[] knots = new BezierKnot[5];
-
-            knots[0] = new BezierKnot(spawnPoint);
-
-            float angle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
-            Vector3 heightGatheredPos = new Vector3(spawnPoint.x + Mathf.Cos(angle) * heightGatheringDistance, dropHeight, spawnPoint.z + Mathf.Sin(angle) * heightGatheringDistance);
-            
-            Vector3 midHeightGatherPos = Vector3.Lerp(spawnPoint, heightGatheredPos, 0.5f);
-            midHeightGatherPos.y /= 1.5f;
-
-            knots[1] = new BezierKnot(midHeightGatherPos);
-
-            knots[2] = new BezierKnot(heightGatheredPos); 
+            knots[0] = new BezierKnot(spawnPoint + new Vector3(0, dropHeight, 0));
 
             // go to drop bomb
 
-            knots[3] = new BezierKnot(targetPoint + new Vector3(0, dropHeight, 0));
+            knots[1] = new BezierKnot(targetPoint + new Vector3(0, dropHeight, 0));
 
             // go down
 
-            knots[4] = new BezierKnot(endPoint);
+            knots[2] = new BezierKnot(endPoint);
 
             //finish
             spline.Knots = knots;

@@ -1,21 +1,32 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class Bomb : MonoBehaviour
 {
-    private Rigidbody rb;
+    Vector3 velocity;
     public GameObject explosionPrefab;
     public float effectDuration = 10f;
 
     public void Initialize(Vector3 initialVelocity)
     {
-        rb = GetComponent<Rigidbody>();
-
-        rb.linearVelocity = initialVelocity;
+        velocity = initialVelocity;
 
         Debug.Log($"Initial Velocity is {initialVelocity}");
 
         StartCoroutine(DelayedSound(3f));
+    }
+
+    void Update()
+    {
+        ApplyGravity();
+
+        transform.position += velocity * Time.deltaTime;
+    }
+
+    private void ApplyGravity()
+    {
+        velocity.y += -9.81f * Time.deltaTime;
     }
 
     IEnumerator DelayedSound(float delay) {
@@ -23,7 +34,8 @@ public class Bomb : MonoBehaviour
     AudioManager.instance.Play("whistle", transform);
     }
 
-    void OnCollisionEnter(Collision collision)
+
+    void OnTriggerEnter(Collider other)
     {
         AudioManager.instance.Play("bomb", transform);
 

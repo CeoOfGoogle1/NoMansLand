@@ -13,7 +13,6 @@ public class CameraController : MonoBehaviour
 
     private float xRotation;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -22,7 +21,6 @@ public class CameraController : MonoBehaviour
         playerCamera.localPosition = new Vector3(0f, standHeight, 0f);
     }
 
-    // Update is called once per frame
     void Update()
     {
         HandleMouseLook();

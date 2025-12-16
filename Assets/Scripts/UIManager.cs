@@ -12,7 +12,7 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        localPlayer = FindAnyObjectByType<PlayerController>().gameObject;
+        localPlayer = FindAnyObjectByType<MovementController>().gameObject;
     }
 
     void Update()
@@ -24,11 +24,11 @@ public class UIManager : MonoBehaviour
 
     private void UpdateHealthBar()
     {
-        healthBarFill.fillAmount = localPlayer.GetComponent<PlayerHealth>().GetHealth();
+        //healthBarFill.fillAmount = localPlayer.GetComponent<PlayerHealth>().GetHealth();
     }
 
     private void UpdateHungerBar()
     {
-        hungerBarFill.fillAmount = localPlayer.GetComponent<PlayerHunger>().GetHunger();
+        //hungerBarFill.fillAmount = localPlayer.GetComponent<PlayerHunger>().GetHunger();
     }
 }

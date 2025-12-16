@@ -2,25 +2,15 @@ using UnityEngine;
 
 public class PostureController : MonoBehaviour
 {
-    public float crouchSpeed = 2.5f;
-    public float proneSpeed = 1.5f;
+    public bool isCrouching = false;
+    public bool isProne = false;
+    private CameraController cameraController;
 
-    public bool isCrouching;
-    public bool isProne;
-
-    [Header("Temporary")]
-    public CameraController cameraController;
-    private float standHeight => cameraController.standHeight;
-    private float crouchHeight => cameraController.crouchHeight;
-    private float proneHeight => cameraController.proneHeight;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-        
+        cameraController = GetComponent<CameraController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         HandlePostureInput();
@@ -28,32 +18,40 @@ public class PostureController : MonoBehaviour
 
     void HandlePostureInput()
     {
-        if (!Input.GetKeyDown(KeyCode.C)) return;
-
-        if (!isCrouching && !isProne)
-            SetCrouch();
-        else if (isCrouching)
-            SetProne();
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            if (!isCrouching && !isProne)
+                SetCrouch();
+            else if (isCrouching)
+                SetProne();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (isProne)
+                SetCrouch();
+            else if (isCrouching)
+                SetStand();
+        }
     }
 
     public void SetStand()
     {
         isCrouching = false;
         isProne = false;
-        StartCoroutine(cameraController.SmoothCameraHeight(standHeight));
+        StartCoroutine(cameraController.SmoothCameraHeight(cameraController.standHeight));
     }
 
     public void SetCrouch()
     {
         isCrouching = true;
         isProne = false;
-        StartCoroutine(cameraController.SmoothCameraHeight(crouchHeight));
+        StartCoroutine(cameraController.SmoothCameraHeight(cameraController.crouchHeight));
     }
 
     public void SetProne()
     {
         isCrouching = false;
         isProne = true;
-        StartCoroutine(cameraController.SmoothCameraHeight(proneHeight));
+        StartCoroutine(cameraController.SmoothCameraHeight(cameraController.proneHeight));
     }
 }

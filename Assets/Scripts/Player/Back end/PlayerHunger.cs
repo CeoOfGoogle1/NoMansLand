@@ -3,22 +3,61 @@ using UnityEngine;
 
 public class PlayerHunger : MonoBehaviour
 {
-    [Header("Values")]
-    [SerializeField, Tooltip("Percents Per Second")] private float defaultHungerDecraseRate = 1; 
-    private float hunger = 1; // 0 - 1 (0 is hungry)
+    [SerializeField] private float hungerGainPerMinute = 1;
+    [SerializeField] private float hungerPassiveHealThreshold = 50;
+    private float maxHunger = 100;
+    private float currentHunger = 0;
+    public float hungerSpeedFactor = 1f;
+    public float hungerStaminaFactor = 1f;
+    PlayerHealth playerHealth;
+
+    void Awake()
+    {
+        playerHealth = GetComponent<PlayerHealth>();
+    }
 
     void Update()
     {
-        LoseHunger();
+        GainHunger();
+        HungerDebuffs();
+
+        if (currentHunger >= maxHunger)
+        {
+            MaxHungerReached();
+        }
+
+        Debug.Log("Current Hunger: " + currentHunger);
     }
 
-    private void LoseHunger()
+    private void GainHunger()
     {
-        hunger -= Time.deltaTime * defaultHungerDecraseRate / 100;
+        currentHunger += hungerGainPerMinute * Time.deltaTime / 60f;
+        currentHunger = Mathf.Clamp(currentHunger, 0, maxHunger);
     }
 
-    public float GetHunger()
+    private void HungerDebuffs()
     {
-        return hunger;
+        hungerSpeedFactor = 1 - (currentHunger / maxHunger);
+        hungerStaminaFactor = 1 - (currentHunger / maxHunger);
+
+        if (currentHunger >= hungerPassiveHealThreshold)
+        {
+            playerHealth.isHungry = true;
+        }
+        else if (currentHunger < hungerPassiveHealThreshold)
+        {
+            playerHealth.isHungry = false;
+        }
+    }
+
+    public void Eat(float foodAmount)
+    {
+        foodAmount *= 3;
+        currentHunger -= foodAmount;
+    }
+
+    private void MaxHungerReached()
+    {
+        //dies
     }
 }

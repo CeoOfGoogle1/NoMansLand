@@ -33,7 +33,7 @@ public class MovementController : MonoBehaviour
     void Update()
     {
         walkSpeed = initialWalkSpeed * playerSpeed.GetSpeedFactor();
-        Debug.Log("Current Walk Speed: " + walkSpeed);
+        //Debug.Log("Current Walk Speed: " + walkSpeed);
 
         isGrounded = controller.isGrounded;
 

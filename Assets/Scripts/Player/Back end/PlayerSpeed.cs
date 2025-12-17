@@ -35,7 +35,7 @@ public class PlayerSpeed : MonoBehaviour
         RegenerateStamina();
         CheckIfCanRun();
 
-        Debug.Log("Current Stamina: " + currentStamina);
+        //Debug.Log("Current Stamina: " + currentStamina);
 
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
     }

@@ -26,7 +26,7 @@ public class PlayerHunger : MonoBehaviour
             MaxHungerReached();
         }
 
-        Debug.Log("Current Hunger: " + currentHunger);
+        //Debug.Log("Current Hunger: " + currentHunger);
     }
 
     private void GainHunger()

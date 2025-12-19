@@ -53,6 +53,7 @@ public class Weather : MonoBehaviour
             fogManager.SetFogColor(fogManager.defaultFogColor);
             fogManager.SetFogDensity(fogManager.defaultFogDensity);
             timeOfDay.SetSkyColor(timeOfDay.topClear, timeOfDay.midClear, timeOfDay.bottomClear);
+            timeOfDay.SetClouds(timeOfDay.cloudClear, timeOfDay.cloudAlphaClear);
         }
     }
 
@@ -63,6 +64,7 @@ public class Weather : MonoBehaviour
             fogManager.SetFogColor(fogManager.mistFogColor);
             fogManager.SetFogDensity(fogManager.mistFogDensity);
             timeOfDay.SetSkyColor(timeOfDay.topMist, timeOfDay.midMist, timeOfDay.bottomMist);
+            timeOfDay.SetClouds(timeOfDay.cloudMist, timeOfDay.cloudAlphaMist);
         }
     }
 
@@ -74,6 +76,7 @@ public class Weather : MonoBehaviour
             fogManager.SetFogColor(fogManager.mistFogColor);
             fogManager.SetFogDensity(fogManager.mistFogDensity);
             timeOfDay.SetSkyColor(timeOfDay.topMist, timeOfDay.midMist, timeOfDay.bottomMist);
+            timeOfDay.SetClouds(timeOfDay.cloudMist, timeOfDay.cloudAlphaMist);
         }
         else
         {
@@ -89,6 +92,7 @@ public class Weather : MonoBehaviour
             fogManager.SetFogColor(fogManager.mistFogColor);
             fogManager.SetFogDensity(fogManager.mistFogDensity);
             timeOfDay.SetSkyColor(timeOfDay.topMist, timeOfDay.midMist, timeOfDay.bottomMist);
+            timeOfDay.SetClouds(timeOfDay.cloudMist, timeOfDay.cloudAlphaMist);
         }
         else
         {
@@ -104,6 +108,7 @@ public class Weather : MonoBehaviour
             fogManager.SetFogColor(fogManager.greenRainFogColor);
             fogManager.SetFogDensity(fogManager.greenRainFogDensity);
             timeOfDay.SetSkyColor(timeOfDay.topGreen, timeOfDay.midGreen, timeOfDay.bottomGreen);
+            timeOfDay.SetClouds(timeOfDay.cloudGreen, timeOfDay.cloudAlphaGreen);
         }
         else
         {
@@ -119,6 +124,7 @@ public class Weather : MonoBehaviour
             fogManager.SetFogColor(fogManager.dustStormFogColor);
             fogManager.SetFogDensity(fogManager.dustStormFogDensity);
             timeOfDay.SetSkyColor(timeOfDay.topDust, timeOfDay.midDust, timeOfDay.bottomDust);
+            timeOfDay.SetClouds(timeOfDay.cloudDust, timeOfDay.cloudAlphaDust);
         }
         else 
         {
@@ -134,6 +140,7 @@ public class Weather : MonoBehaviour
             fogManager.SetFogColor(fogManager.blackFogColor);
             fogManager.SetFogDensity(fogManager.blackFogDensity);
             timeOfDay.SetSkyColor(timeOfDay.topBlack, timeOfDay.midBlack, timeOfDay.bottomBlack);
+            timeOfDay.SetClouds(timeOfDay.cloudBlack, timeOfDay.cloudAlphaBlack);
         }
         else
         {

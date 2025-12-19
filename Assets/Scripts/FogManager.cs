@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class FogManager : MonoBehaviour
@@ -27,7 +26,6 @@ public class FogManager : MonoBehaviour
     void Update()
     {
         currentTimeOfDay = timeOfDay.GetTimeOfDay();
-        //RenderSettings.fogColor = newGradient.Evaluate(currentTimeOfDay);
     }
 
     public void SetFogColor(Gradient color)

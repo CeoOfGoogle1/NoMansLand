@@ -197,7 +197,7 @@ MonoBehaviour:
   rollVisual: {fileID: 6055928552449059395}
   rollSpeed: 2
   zRotMultiplier: 0.5
-  aircraftSpeed: 300
+  aircraftSpeed: 400
   dropHeight: 120
 --- !u!114 &8066073681515875630
 MonoBehaviour:

@@ -34,6 +34,9 @@ public class Aircraft : MonoBehaviour
     {
         splineAnimate = GetComponent<SplineAnimate>();
 
+        prevPosition = transform.position;
+        prevVelocity = Vector3.zero;
+
         aircraftBehaviour = ab;
 
         spawnPoint = newSpawnPoint;
@@ -59,7 +62,7 @@ public class Aircraft : MonoBehaviour
         jet = AudioManager.instance.PlayLoop("jet", transform);
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (!initialized) return;
 
@@ -82,9 +85,12 @@ public class Aircraft : MonoBehaviour
         currentPosAir.y = 0;
 
         float distanceToTarget = Vector3.Distance(currentPosAir, targetPointAir);
-        float releaseDistance = Ballistics.CalculateBombReleaseDistance(aircraftSpeed, dropHeight);
 
-        if (Mathf.Abs(distanceToTarget - releaseDistance) <= 5f && hasBomb)
+        // Use the aircraft's current horizontal speed and actual altitude (transform.position.y),
+        // and include the aircraft's vertical velocity component for correct fall time.
+        float releaseDistance = Ballistics.CalculateBombReleaseDistance(currentVelocity, transform.position.y);
+
+        if (Mathf.Abs(distanceToTarget - releaseDistance) <= 10f && hasBomb)
         {
             hasBomb = false;
             Instantiate(bombPrefab, transform.position, Quaternion.identity)

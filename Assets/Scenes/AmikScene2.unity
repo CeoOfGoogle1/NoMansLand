@@ -216,6 +216,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   aircraftPath: {fileID: 1465632384553251959, guid: 9224e5adb2f87a54ab13c237565b59c2, type: 3}
   f15Prefab: {fileID: 6775575813205016772, guid: 33ee5b1176ef3ac458d189a4a84a04fa, type: 3}
+  jetSpawnRadius: 4000
+  landingAngleOffset: 40
   spawnPosTransform: {fileID: 511700782}
   endPosTransform: {fileID: 287615499}
   targetPosTransform: {fileID: 2115526529}
@@ -22071,6 +22073,55 @@ MonoBehaviour:
   currentHealth: 10
   bodypartType: 0
   bleedState: 0
+--- !u!1 &1471044845
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1471044846}
+  - component: {fileID: 1471044847}
+  m_Layer: 0
+  m_Name: Background Effects Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1471044846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1471044845}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1471044847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1471044845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8427dd91b04f654d971640f2d8013cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  battleTimerTarget: 1
+  jetTimerTarget: 500
+  jetLaunchPercent: 10
+  fireTimerTarget: 1
+  nukeTimerTarget: 1
 --- !u!1 &1496404077
 GameObject:
   m_ObjectHideFlags: 0
@@ -28030,5 +28081,6 @@ SceneRoots:
   - {fileID: 2130029918}
   - {fileID: 511700782}
   - {fileID: 2115526529}
-  - {fileID: 115140464}
   - {fileID: 287615499}
+  - {fileID: 115140464}
+  - {fileID: 1471044846}

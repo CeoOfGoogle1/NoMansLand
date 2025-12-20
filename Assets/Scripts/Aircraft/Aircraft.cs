@@ -98,7 +98,7 @@ public class Aircraft : MonoBehaviour
                 .Initialize(currentVelocity);
         }
 
-        Debug.Log($"ReleaseDistance: {releaseDistance}, DistanceToTarget: {distanceToTarget}");
+        //Debug.Log($"ReleaseDistance: {releaseDistance}, DistanceToTarget: {distanceToTarget}");
     }
 
     private void ApplyRoll()

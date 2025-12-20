@@ -21,7 +21,18 @@ public class Bomb : MonoBehaviour
     {
         ApplyGravity();
 
+        ApplyAirRes();
+
         transform.position += velocity * Time.deltaTime;
+    }
+
+    private void ApplyAirRes()
+    {
+        //Todo include air res in ballistics
+
+        float factor = Mathf.Pow(0.98f, Time.deltaTime);
+        velocity.x *= factor;
+        velocity.z *= factor;
     }
 
     private void ApplyGravity()

@@ -1,15 +1,20 @@
 using System;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemySoldier : MonoBehaviour
 {
     Animator animator;
+    NavMeshAgent navMeshAgent;
+
+    GameObject player;
 
     [Header("Parameters")]
     [SerializeField] float maxHealth;
     [SerializeField] int maxAmmo;
     [SerializeField] float playerReachedDistance;
     [SerializeField] GameObject retreatPoint;
+    [SerializeField] private float retreatPointReachedDistance;
     [Header("CurrentState")]
     [SerializeField] private EnemySoldierBehaviour currentBehaviour;
     [SerializeField] private float currentHealth;
@@ -21,11 +26,17 @@ public class EnemySoldier : MonoBehaviour
     [SerializeField] bool isShooting;
     [SerializeField] bool isHealing;
 
+
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
 
+        navMeshAgent = GetComponent<NavMeshAgent>();
+
+        player = FindAnyObjectByType<MovementController>().gameObject;
+
         currentHealth = maxHealth;
+        currentAmmo = maxAmmo;
     }
 
     void Update()
@@ -41,14 +52,39 @@ public class EnemySoldier : MonoBehaviour
 
     private void Act()
     {
-        
+        if(currentBehaviour == EnemySoldierBehaviour.Relax || currentBehaviour == EnemySoldierBehaviour.Shoot || currentBehaviour == EnemySoldierBehaviour.Heal)
+        {
+            navMeshAgent.SetDestination(transform.position);
+        }
+        else if(currentBehaviour == EnemySoldierBehaviour.Retreat)
+        {
+            navMeshAgent.SetDestination(retreatPoint.transform.position);
+        }
+        else if(currentBehaviour == EnemySoldierBehaviour.RunToDestination)
+        {
+            navMeshAgent.SetDestination(player.transform.position);
+        }
     }
 
     private void UpdateBehaviour()
     {
-        if (currentAmmo <= 0 || currentHealth <= 20)
+        isInSafety = Vector3.Distance(transform.position, retreatPoint.transform.position) < retreatPointReachedDistance;
+
+        if (currentAmmo <= 0 || currentHealth <= 20 && !isInSafety)
         {
-            
+            currentBehaviour = EnemySoldierBehaviour.Retreat;
+        }
+        else if(currentAmmo <= 0 || currentHealth <= 20 && isInSafety)
+        {
+            currentBehaviour = EnemySoldierBehaviour.Heal;
+        }
+        else if(Vector3.Distance(transform.position, player.transform.position) > playerReachedDistance)
+        {
+            currentBehaviour = EnemySoldierBehaviour.RunToDestination;
+        }
+        else
+        {
+            currentBehaviour = EnemySoldierBehaviour.Shoot;
         }
     }
 
@@ -73,6 +109,8 @@ public class EnemySoldier : MonoBehaviour
         else if(currentBehaviour == EnemySoldierBehaviour.Shoot)
         {
             isShooting = true;
+
+            transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
         }
 
         if (isHealing)

@@ -8,6 +8,9 @@ public class AircraftManager : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] GameObject aircraftPath;
     [SerializeField] GameObject f15Prefab;
+    [Header("Parameters")]
+    [SerializeField] float jetSpawnRadius = 4000;
+    [SerializeField] float landingAngleOffset = 40f;
     [Header("Positions (TEMPORARY)")]
     [SerializeField] Transform spawnPosTransform;
     [SerializeField] Transform endPosTransform;
@@ -25,12 +28,38 @@ public class AircraftManager : MonoBehaviour
         DontDestroyOnLoad(gameObject); // включи, если менеджер должен жить между сценами
     }
 
-    void Start()
+    public void LaunchAircraft()
     {
-        //TEMP
+        var target = FindAnyObjectByType<MovementController>().transform.position;
+
+        // случайный угол старта
+        float startAngle = Random.Range(0f, 360f);
+
+        // противоположная сторона + рандомное отклонение
+        float endAngle = startAngle + 180f + Random.Range(-landingAngleOffset, landingAngleOffset);
+
+        Vector3 startPos = GetPointOnCircle(target, jetSpawnRadius, startAngle);
+        Vector3 endPos   = GetPointOnCircle(target, jetSpawnRadius, endAngle);
+
         Instantiate(f15Prefab)
             .GetComponent<Aircraft>()
-            .Initialize(AircraftBehaviour.BombDropping, spawnPosTransform.position, endPosTransform.position, targetPosTransform.position);
+            .Initialize(
+                AircraftBehaviour.BombDropping,
+                startPos,
+                endPos,
+                target
+            );
+    }
+
+    Vector3 GetPointOnCircle(Vector3 center, float radius, float angleDeg)
+    {
+        float angleRad = angleDeg * Mathf.Deg2Rad;
+
+        return center + new Vector3(
+            Mathf.Cos(angleRad) * radius,
+            0f, // если нужно лететь на другой высоте — меняй тут
+            Mathf.Sin(angleRad) * radius
+        );
     }
 
     public GameObject GetAircraftPathPrefab()

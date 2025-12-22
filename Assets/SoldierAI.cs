@@ -2,21 +2,21 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemySoldier : MonoBehaviour
+public class SoldierAI : MonoBehaviour
 {
     Animator animator;
     NavMeshAgent navMeshAgent;
-
-    GameObject player;
+    SoldierSurroundingCheck soldierSurroundingCheck;
 
     [Header("Parameters")]
+    [SerializeField] SoldierSide soldierSide = SoldierSide.BadGuys;
     [SerializeField] float maxHealth;
     [SerializeField] int maxAmmo;
-    [SerializeField] float playerReachedDistance;
+    [SerializeField] float shootDistance = 20f;
     [SerializeField] GameObject retreatPoint;
     [SerializeField] private float retreatPointReachedDistance;
     [Header("CurrentState")]
-    [SerializeField] private EnemySoldierBehaviour currentBehaviour;
+    [SerializeField] private SoldierBehaviour currentBehaviour;
     [SerializeField] private float currentHealth;
     [SerializeField] private int currentAmmo;
     [SerializeField] bool isInSafety;
@@ -26,6 +26,11 @@ public class EnemySoldier : MonoBehaviour
     [SerializeField] bool isShooting;
     [SerializeField] bool isHealing;
 
+    public void Initialize(SoldierSide side)
+    {
+        soldierSide = side;
+    }
+
 
     void Start()
     {
@@ -33,7 +38,7 @@ public class EnemySoldier : MonoBehaviour
 
         navMeshAgent = GetComponent<NavMeshAgent>();
 
-        player = FindAnyObjectByType<MovementController>().gameObject;
+        soldierSurroundingCheck = GetComponentInChildren<SoldierSurroundingCheck>();
 
         currentHealth = maxHealth;
         currentAmmo = maxAmmo;
@@ -52,17 +57,17 @@ public class EnemySoldier : MonoBehaviour
 
     private void Act()
     {
-        if(currentBehaviour == EnemySoldierBehaviour.Relax || currentBehaviour == EnemySoldierBehaviour.Shoot || currentBehaviour == EnemySoldierBehaviour.Heal)
+        if(currentBehaviour == SoldierBehaviour.Relax || currentBehaviour == SoldierBehaviour.Shoot || currentBehaviour == SoldierBehaviour.Heal)
         {
             navMeshAgent.SetDestination(transform.position);
         }
-        else if(currentBehaviour == EnemySoldierBehaviour.Retreat)
+        else if(currentBehaviour == SoldierBehaviour.Retreat)
         {
             navMeshAgent.SetDestination(retreatPoint.transform.position);
         }
-        else if(currentBehaviour == EnemySoldierBehaviour.RunToDestination)
+        else if(currentBehaviour == SoldierBehaviour.RunToDestination)
         {
-            navMeshAgent.SetDestination(player.transform.position);
+            navMeshAgent.SetDestination(soldierSurroundingCheck.GetClosestEnemy().transform.position);
         }
     }
 
@@ -72,19 +77,26 @@ public class EnemySoldier : MonoBehaviour
 
         if (currentAmmo <= 0 || currentHealth <= 20 && !isInSafety)
         {
-            currentBehaviour = EnemySoldierBehaviour.Retreat;
+            currentBehaviour = SoldierBehaviour.Retreat;
         }
         else if(currentAmmo <= 0 || currentHealth <= 20 && isInSafety)
         {
-            currentBehaviour = EnemySoldierBehaviour.Heal;
+            currentBehaviour = SoldierBehaviour.Heal;
         }
-        else if(Vector3.Distance(transform.position, player.transform.position) > playerReachedDistance)
+        else if (soldierSurroundingCheck.HasEnemies())
         {
-            currentBehaviour = EnemySoldierBehaviour.RunToDestination;
+            if(Vector3.Distance(transform.position, soldierSurroundingCheck.GetClosestEnemy().transform.position) > shootDistance)
+            {
+                currentBehaviour = SoldierBehaviour.RunToDestination;
+            }
+            else
+            {
+               currentBehaviour = SoldierBehaviour.Shoot; 
+            }            
         }
         else
         {
-            currentBehaviour = EnemySoldierBehaviour.Shoot;
+            currentBehaviour = SoldierBehaviour.Relax;
         }
     }
 
@@ -94,23 +106,23 @@ public class EnemySoldier : MonoBehaviour
         isShooting = false;
         isHealing = false;
 
-        if(currentBehaviour == EnemySoldierBehaviour.Relax)
+        if(currentBehaviour == SoldierBehaviour.Relax)
         {
             return; 
         }
-        else if(currentBehaviour == EnemySoldierBehaviour.Heal)
+        else if(currentBehaviour == SoldierBehaviour.Heal)
         {
             isHealing = true;            
         }
-        else if(currentBehaviour == EnemySoldierBehaviour.RunToDestination || currentBehaviour == EnemySoldierBehaviour.Retreat)
+        else if(currentBehaviour == SoldierBehaviour.RunToDestination || currentBehaviour == SoldierBehaviour.Retreat)
         {
             isRunning = true;
         }
-        else if(currentBehaviour == EnemySoldierBehaviour.Shoot)
+        else if(currentBehaviour == SoldierBehaviour.Shoot)
         {
             isShooting = true;
 
-            transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
+            transform.LookAt(new Vector3(soldierSurroundingCheck.GetClosestEnemy().transform.position.x, transform.position.y, soldierSurroundingCheck.GetClosestEnemy().transform.position.z));
         }
 
         if (isHealing)
@@ -124,7 +136,6 @@ public class EnemySoldier : MonoBehaviour
         {
             if(GetComponentInChildren<ParticleSystem>().isPlaying)
             {
-                Debug.Log("Should stop palying anim");
                GetComponentInChildren<ParticleSystem>().Stop(); 
             }  
         }
@@ -132,18 +143,28 @@ public class EnemySoldier : MonoBehaviour
 
     private void UpdateAnimator()
     {
-        
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isShooting", isShooting);
+    }
+
+    public SoldierSide GetSoldierSide()
+    {
+        return soldierSide;
     }
 }
 
 
-public enum EnemySoldierBehaviour
+public enum SoldierBehaviour
 {
     Relax,
     Heal,
     RunToDestination,
     Retreat,
     Shoot
+}
+
+public enum SoldierSide
+{
+    GoodGuys,
+    BadGuys
 }

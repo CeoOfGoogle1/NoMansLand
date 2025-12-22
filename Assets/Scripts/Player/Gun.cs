@@ -6,18 +6,20 @@ public class Gun : MonoBehaviour
     [Header("Positions")]
     public Vector3 hipPosition;
     public Vector3 aimedPosition;
-    public Transform barrel;
+    public Vector3 barrelPosition;
 
     [Header("Gun Stats")]
     public float damage;
     public float initialVelocity;
-    public float fireRate;
+    public float firerate;
     public float reloadTime;
     public float aimTime;
     public float recoilPower;
     public float jamChance;
     public AmmoType ammoType;
     public GameObject bulletPrefab;
+    public bool chambered;
+    public bool semiAuto;
 
     [Header("Magazines")]
     public List<Magazine> mags = new();
@@ -26,7 +28,7 @@ public class Gun : MonoBehaviour
     public float magWeight;
 
     bool isAiming;
-    bool chambered;
+    float nextFireTime = 0f;
 
     Vector3 currentTargetPos;
 
@@ -41,43 +43,74 @@ public class Gun : MonoBehaviour
         transform.localPosition = Vector3.Lerp(
             transform.localPosition,
             currentTargetPos,
-            Time.deltaTime * aimTime
+            Time.deltaTime * 10 / aimTime
         );
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            Aim();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R)) Reload();
+
+        if (Input.GetMouseButtonDown(2)) CockGun();
+        
+        if (Input.GetMouseButtonDown(0) && Time.time >= nextFireTime && semiAuto)
+        {
+            Fire();
+            nextFireTime = Time.time + (60f / firerate);
+        }
+
+        if (Input.GetMouseButton(0) && Time.time >= nextFireTime && !semiAuto)
+        {
+            Fire();
+            nextFireTime = Time.time + (60f / firerate);
+        }
     }
 
     // ---------- Aiming ----------
 
-    public void HandleAim()
+    public void Aim()
     {
-        if (Input.GetMouseButtonDown(1))
-        {
-            isAiming = !isAiming;
-            currentTargetPos = isAiming ? aimedPosition : hipPosition;
-        }
+        isAiming = !isAiming;
+        currentTargetPos = isAiming ? aimedPosition : hipPosition;
     }
 
     // ---------- Firing ----------
 
     public void Fire()
     {
+        Debug.Log("trying to fire");
+
         if (!chambered) return;
 
         SpawnBullet();
-        chambered = false;
 
-        TryChamberFromMag();
+        if (loadedMag != null && loadedMag.currentAmmo > 0)
+        {
+            loadedMag.currentAmmo--;
+        }
+        else
+        {
+            chambered = false;
+        }
+
+        Debug.Log("fired");
     }
 
     void SpawnBullet()
     {
+        Vector3 spawnPosition = transform.TransformPoint(barrelPosition);
+
         GameObject bullet = Instantiate(
             bulletPrefab,
-            barrel.position,
-            barrel.rotation
+            spawnPosition,
+            transform.rotation
         );
 
         if (bullet.TryGetComponent(out Rigidbody rb))
-            rb.linearVelocity = barrel.forward * initialVelocity;
+            rb.linearVelocity = transform.forward * initialVelocity;
+        Debug.Log("spawned bullet");
     }
 
     // ---------- Reloading ----------
@@ -92,6 +125,7 @@ public class Gun : MonoBehaviour
 
         loadedMag = best;
         mags.Remove(best);
+        Debug.Log("reloaded");
     }
 
     Magazine GetBestMagazine()
@@ -117,29 +151,17 @@ public class Gun : MonoBehaviour
 
     public void CockGun()
     {
-        if (loadedMag.currentAmmo > 0)
+        Debug.Log("trying to cock");
+        if (loadedMag != null && loadedMag.currentAmmo > 0)
         {
             loadedMag.currentAmmo--;
             chambered = true;
         }
-        else if (chambered)
+        else
         {
             chambered = false;
         }
-        else
-        {
-            // empty ahh
-        }
-    }
-
-    void TryChamberFromMag()
-    {
-        if (loadedMag == null) return;
-        if (chambered) return;
-        if (loadedMag.currentAmmo <= 0) return;
-
-        loadedMag.currentAmmo--;
-        chambered = true;
+        Debug.Log("cocked");
     }
 
     // ---------- Weight ----------

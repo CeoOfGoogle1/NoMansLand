@@ -630,7 +630,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1435182479}
+  - {fileID: 1079825130}
   m_Father: {fileID: 1756178914}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &330585547
@@ -873,7 +875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5149c11410aa5f245aca2aea599cc5a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cycleLengthInMinutes: 1
+  cycleLengthInMinutes: 10
   sunBaseIntensity: 1
   sunVariation: 1
   DayNumber: 0
@@ -21172,12 +21174,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1079825129}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.301, z: 1.316}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.4, y: -0.3, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1756178914}
+  m_Father: {fileID: 330585546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1088446082
 GameObject:
@@ -21861,12 +21863,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1435182478}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.7, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.4, y: 0.2, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1756178914}
+  m_Father: {fileID: 330585546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &1435182480
 CapsuleCollider:
@@ -27322,8 +27324,6 @@ Transform:
   - {fileID: 1641933710}
   - {fileID: 1386580232}
   - {fileID: 1223660438}
-  - {fileID: 1435182479}
-  - {fileID: 1079825130}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1756178916
@@ -27490,7 +27490,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 337f5127284dc614d83262828ed6640a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  items: []
+  items:
+  - Item: {fileID: 11400000, guid: e855cc7edfc3dcc40a8b9e7f3ff7e9cd, type: 2}
+    Count: 1
   selectedIndex: 0
   itemController: {fileID: 1756178925}
 --- !u!1 &1836451181
@@ -27715,6 +27717,21 @@ MonoBehaviour:
   - id: blackfog
     clips:
     - {fileID: 8300000, guid: 0e06a6c140707c0499c1c562516fc2d3, type: 3}
+    minDistance: 1
+    maxDistance: 10000
+    volume: 1
+    spatialBlend: 0
+    dopplerLevel: 0
+    lpfNear: 22000
+    lpfFar: 1000
+  - id: step
+    clips:
+    - {fileID: 8300000, guid: 1fafdeeac8f8c07438a80f8e8b59381e, type: 3}
+    - {fileID: 8300000, guid: 73fbc4538f61a0745b01a2b275c55878, type: 3}
+    - {fileID: 8300000, guid: 64a5d86ef7614034ab5e39c0c84746c5, type: 3}
+    - {fileID: 8300000, guid: c7ee97bc330f3134fa6d7ff978ffcfdf, type: 3}
+    - {fileID: 8300000, guid: e2894304bba9bce47aa24dae9f8355bb, type: 3}
+    - {fileID: 8300000, guid: 9e80d6efc665b8945af8e4f753f2b586, type: 3}
     minDistance: 1
     maxDistance: 10000
     volume: 1

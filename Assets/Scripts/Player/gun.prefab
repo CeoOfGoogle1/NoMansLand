@@ -122,30 +122,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hipPosition: {x: 0, y: 0, z: 0}
-  aimedPosition: {x: 0, y: 0, z: 1}
-  barrel: {fileID: 5847635821662730759}
+  aimedPosition: {x: -0.4, y: 0.1, z: 0}
+  barrelPosition: {x: 0, y: 0, z: 1}
   damage: 1
-  initialVelocity: 1
-  fireRate: 1
+  initialVelocity: 100
+  firerate: 500
   reloadTime: 1
-  aimTime: 1
+  aimTime: 3
   recoilPower: 1
   jamChance: 1
   ammoType: 0
   bulletPrefab: {fileID: 1492959477547456933, guid: 9dd798a8787ec214387f8bd2c0b62653, type: 3}
+  chambered: 1
+  semiAuto: 0
   mags:
   - ammoType: 0
-    capacity: 0
-    currentAmmo: 0
-    weight: 0
+    capacity: 30
+    currentAmmo: 30
+    weight: 1
   - ammoType: 0
-    capacity: 0
-    currentAmmo: 0
-    weight: 0
+    capacity: 30
+    currentAmmo: 30
+    weight: 1
+  - ammoType: 0
+    capacity: 30
+    currentAmmo: 30
+    weight: 1
+  - ammoType: 0
+    capacity: 30
+    currentAmmo: 30
+    weight: 1
+  - ammoType: 0
+    capacity: 30
+    currentAmmo: 30
+    weight: 1
   loadedMag:
     ammoType: 0
-    capacity: 0
-    currentAmmo: 0
-    weight: 0
+    capacity: 30
+    currentAmmo: 30
+    weight: 1
   magCapacity: 30
   magWeight: 1

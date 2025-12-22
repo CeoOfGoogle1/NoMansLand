@@ -14,4 +14,3 @@ public class Magazine
     public int currentAmmo;
     public float weight;
 }
-

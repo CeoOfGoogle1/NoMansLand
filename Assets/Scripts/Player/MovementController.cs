@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 public class MovementController : MonoBehaviour
@@ -20,6 +21,9 @@ public class MovementController : MonoBehaviour
     private PostureController postureController;
     private CharacterController controller;
     private PlayerSpeed playerSpeed;
+    private AudioManager.LoopHandle step;
+    private bool isWalking = false;
+    private bool wasWalking = false;
 
     void Awake()
     {
@@ -37,6 +41,8 @@ public class MovementController : MonoBehaviour
 
         isGrounded = controller.isGrounded;
 
+        HandleSounds();
+
         HandleMovementAndGravity();
         UpdateCurrentSpeed();
         HandleJump();
@@ -49,14 +55,14 @@ public class MovementController : MonoBehaviour
 
         Vector3 input = (transform.right * h + transform.forward * v).normalized;
 
-        float control = isGrounded ? 1f : 0.1f;
+        float control = isGrounded ? 1f : 0.5f;
 
         Vector3 move = input * currentSpeed * control;
 
         // Ground stick
         if (isGrounded && velocity.y < 0f)
         {
-            velocity.y = -2f; // small downward force is REQUIRED
+            velocity.y = -2f; // small downward force is REQUIRED?
         }
 
         // Gravity
@@ -100,10 +106,30 @@ public class MovementController : MonoBehaviour
             !postureController.isProne &&
             playerSpeed.canRun)
         {
-            velocity.x *= 0.5f;
-            velocity.z *= 0.5f;
             velocity.y = jumpForce;
             isGrounded = false;
         }
+    }
+
+    void HandleSounds()
+    {
+        if (controller.velocity.x > 0 || controller.velocity.z > 0)
+        {
+            isWalking = true;
+        }
+        else
+        {
+            isWalking = false;
+        }
+
+        if (isWalking && !wasWalking && isGrounded)
+        {
+            step = AudioManager.instance.PlayLoop("step", transform);
+        }
+        else if (!isWalking && wasWalking)
+        {
+            step.Stop();
+        }
+        wasWalking = isWalking;
     }
 }

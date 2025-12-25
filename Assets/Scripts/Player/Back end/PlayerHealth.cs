@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -90,8 +89,8 @@ public class PlayerHealth : MonoBehaviour
 
         foreach (var part in bodyparts)
         {
-            if (part.bleedState == Bodypart.BleedState.Heavy) heavy = true;
-            else if (part.bleedState == Bodypart.BleedState.Light) light = true;
+            if (part.currentHealth < 3) heavy = true;
+            else if (part.currentHealth < 6) light = true;
         }
 
         if (heavy)

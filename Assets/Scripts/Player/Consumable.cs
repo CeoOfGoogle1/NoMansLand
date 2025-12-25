@@ -3,9 +3,11 @@ using UnityEngine;
 public class Consumable : MonoBehaviour
 {
     public float increaseAmount;
-
-    public void Use()
+    public enum ConsumableType
     {
-        Debug.Log("Consumable used.");
+        Drink,
+        Food,
+        Bandage,
     }
+    public ConsumableType consumableType;
 }

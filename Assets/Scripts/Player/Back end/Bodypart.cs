@@ -12,16 +12,10 @@ public class Bodypart : MonoBehaviour
         LeftLeg,
         RightLeg
     }
-    public enum BleedState
-    {
-        None = 0,
-        Light = 1,
-        Heavy = 2
-    }
+
     public float maxHealth = 10;
     public float currentHealth = 10;
     public BodypartType bodypartType;
-    public BleedState bleedState = BleedState.None;
     public Collider bodypartCollider { get; private set; }
 
     void Awake()
@@ -33,19 +27,11 @@ public class Bodypart : MonoBehaviour
     {
         currentHealth -= damageAmount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        UpdateBleedState();
     }
 
     public void Heal(float healAmount)
     {
         currentHealth += healAmount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-    }
-
-    void UpdateBleedState()
-    {
-        if (currentHealth < 4) bleedState = BleedState.Heavy;
-        else if (currentHealth < 8) bleedState = BleedState.Light;
-        else bleedState = BleedState.None;
     }
 }

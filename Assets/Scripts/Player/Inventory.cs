@@ -13,6 +13,9 @@ public class Inventory : MonoBehaviour
     public List<ItemStack> items = new List<ItemStack>();
     public int selectedIndex;
     public ItemController itemController;
+    public float totalWeight = 0;
+    public float weightSpeedFactor = 1f;
+    public float weightStaminaFactor = 1f;
 
     void Update()
     {
@@ -88,10 +91,20 @@ public class Inventory : MonoBehaviour
 
     void RecalculateWeight()
     {
-        float total = 0;
+        totalWeight = 0;
         foreach (var i in items)
-            total += i.Item.weight * i.Count;
+            totalWeight += i.Item.weight * i.Count;
 
-        Debug.Log("Total Inventory Weight: " + total);
+        Debug.Log("Total Inventory Weight: " + totalWeight);
+
+        WeightDebuffs();
+    }
+
+    private void WeightDebuffs()
+    {
+        // Assuming max carry weight is 100 for calculation
+        float maxCarryWeight = 100f;
+        weightSpeedFactor = 1 - (totalWeight / maxCarryWeight);
+        weightStaminaFactor = 1 - (totalWeight / maxCarryWeight);
     }
 }

@@ -14,6 +14,7 @@ public class PlayerSpeed : MonoBehaviour
     private PlayerSleep playerSleep;
     private PlayerHunger playerHunger;
     private PlayerThirst playerThirst;
+    private Inventory inventory;
 
     void Awake()
     {
@@ -23,6 +24,7 @@ public class PlayerSpeed : MonoBehaviour
         playerSleep = GetComponent<PlayerSleep>();
         playerHunger = GetComponent<PlayerHunger>();
         playerThirst = GetComponent<PlayerThirst>();
+        inventory = GetComponent<Inventory>();
 
         initialMaxStamina = maxStamina;
         currentStamina = maxStamina;
@@ -72,7 +74,7 @@ public class PlayerSpeed : MonoBehaviour
     {
         float speedFactor = 1f
             * playerHealth.legHealthSpeedFactor
-            /* weightSpeedFactor*/
+            * inventory.weightSpeedFactor
             * playerSleep.tirednessSpeedFactor
             * playerHunger.hungerSpeedFactor
             * playerThirst.thirstSpeedFactor;
@@ -84,7 +86,7 @@ public class PlayerSpeed : MonoBehaviour
     {
         float staminaFactor = 1f
             * playerHealth.legHealthStaminaFactor
-            /* weightStaminaFactor*/
+            * inventory.weightStaminaFactor
             * playerSleep.tirednessStaminaFactor
             * playerHunger.hungerStaminaFactor
             * playerThirst.thirstStaminaFactor;

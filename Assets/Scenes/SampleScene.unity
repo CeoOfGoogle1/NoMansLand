@@ -21491,7 +21491,6 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 10
   bodypartType: 1
-  bleedState: 0
 --- !u!1 &1302092397
 GameObject:
   m_ObjectHideFlags: 0
@@ -21834,7 +21833,6 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 10
   bodypartType: 2
-  bleedState: 0
 --- !u!1 &1435182478
 GameObject:
   m_ObjectHideFlags: 0
@@ -21961,7 +21959,6 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 10
   bodypartType: 0
-  bleedState: 0
 --- !u!1 &1496404077
 GameObject:
   m_ObjectHideFlags: 0
@@ -22088,7 +22085,6 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 10
   bodypartType: 3
-  bleedState: 0
 --- !u!1 &1558862186
 GameObject:
   m_ObjectHideFlags: 0
@@ -22323,7 +22319,6 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 10
   bodypartType: 4
-  bleedState: 0
 --- !u!1 &1689193840
 GameObject:
   m_ObjectHideFlags: 0
@@ -27453,6 +27448,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f5aeb47e3b13a44dab5ed44148298ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  increaseAmount: 0
+  consumableType: 0
+  playerHunger: {fileID: 0}
+  playerThirst: {fileID: 0}
+  playerHealth: {fileID: 0}
 --- !u!114 &1756178924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27495,6 +27495,9 @@ MonoBehaviour:
     Count: 1
   selectedIndex: 0
   itemController: {fileID: 1756178925}
+  totalWeight: 0
+  weightSpeedFactor: 1
+  weightStaminaFactor: 1
 --- !u!1 &1836451181
 GameObject:
   m_ObjectHideFlags: 0
@@ -27621,7 +27624,6 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 10
   bodypartType: 5
-  bleedState: 0
 --- !u!1 &1883565681
 GameObject:
   m_ObjectHideFlags: 0
